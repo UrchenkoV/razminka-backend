@@ -1,5 +1,12 @@
 import { CommentEntity } from 'src/comment/entities/comment.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity('users')
 export class UserEntity {
@@ -14,6 +21,12 @@ export class UserEntity {
 
   @Column({ nullable: true })
   password?: string;
+
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ type: 'timestamp' })
+  updatedAt: Date;
 
   @OneToMany(() => CommentEntity, (comment) => comment.user)
   comments: CommentEntity[];

@@ -19,6 +19,9 @@ export class PostEntity {
   @Column()
   text: string;
 
+  @Column({ default: 0 })
+  views: number;
+
   @OneToMany(() => CommentEntity, (comment) => comment.post)
   comments: CommentEntity[];
 
