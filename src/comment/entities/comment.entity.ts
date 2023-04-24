@@ -1,5 +1,5 @@
-import { PostEntity } from 'src/posts/entities/post.entity';
-import { UserEntity } from 'src/users/entities/user.entity';
+import { PostEntity } from 'src/post/entities/post.entity';
+import { UserEntity } from 'src/user/entities/user.entity';
 import {
   Column,
   CreateDateColumn,

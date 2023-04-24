@@ -13,7 +13,7 @@ import { lang } from 'src/utils/lang/lang';
 import { SearchUserDto } from './dto/search.user.dto';
 
 @Injectable()
-export class UsersService {
+export class UserService {
   constructor(
     @InjectRepository(UserEntity) private repository: Repository<UserEntity>,
   ) {}

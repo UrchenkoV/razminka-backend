@@ -8,14 +8,14 @@ import {
   Delete,
   Query,
 } from '@nestjs/common';
-import { PostsService } from './posts.service';
+import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { SearchPostDto } from './dto/search.post.dto';
 
 @Controller('posts')
-export class PostsController {
-  constructor(private readonly postsService: PostsService) {}
+export class PostController {
+  constructor(private readonly postsService: PostService) {}
 
   @Post()
   create(@Body() dto: CreatePostDto) {

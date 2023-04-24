@@ -7,7 +7,7 @@ import { Repository } from 'typeorm';
 import { SearchPostDto } from './dto/search.post.dto';
 
 @Injectable()
-export class PostsService {
+export class PostService {
   constructor(
     @InjectRepository(PostEntity) private repository: Repository<PostEntity>,
   ) {}
