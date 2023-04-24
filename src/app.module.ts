@@ -8,6 +8,7 @@ import { PostsModule } from './posts/posts.module';
 import { PostEntity } from './posts/entities/post.entity';
 import { CommentModule } from './comment/comment.module';
 import { CommentEntity } from './comment/entities/comment.entity';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { CommentEntity } from './comment/entities/comment.entity';
     UsersModule,
     PostsModule,
     CommentModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,7 +1,8 @@
 import { IsEmail, Length } from 'class-validator';
+import { lang } from 'src/utils/lang/lang';
 
 export class CreateUserDto {
-  @IsEmail(undefined, { message: 'Укажите правильно почту.' })
+  @IsEmail(undefined, { message: lang.ru.isEmail })
   email: string;
 
   @Length(3, 50, { message: 'Имя и фамилия от 3-х до 50-ти символов.' })
