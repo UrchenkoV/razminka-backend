@@ -1,4 +1,5 @@
 import { CommentEntity } from 'src/comment/entities/comment.entity';
+import { PostEntity } from 'src/post/entities/post.entity';
 import {
   Column,
   CreateDateColumn,
@@ -19,6 +20,9 @@ export class UserEntity {
   @Column()
   fullName: string;
 
+  @Column({ default: '/default-avatar.png' })
+  avatarUrl: string;
+
   @Column({ nullable: true })
   password?: string;
 
@@ -27,6 +31,9 @@ export class UserEntity {
 
   @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
+
+  @OneToMany(() => PostEntity, (post) => post.user)
+  posts: PostEntity[];
 
   @OneToMany(() => CommentEntity, (comment) => comment.user)
   comments: CommentEntity[];

@@ -22,7 +22,7 @@ export class CommentEntity {
   user: UserEntity;
 
   @ManyToOne(() => PostEntity, (post) => post.comments, { nullable: false })
-  @JoinColumn({ name: 'postIs' })
+  @JoinColumn({ name: 'postId' })
   post: PostEntity;
 
   @CreateDateColumn({ type: 'timestamp' })

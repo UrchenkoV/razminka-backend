@@ -19,7 +19,7 @@ export class UserService {
   ) {}
 
   async create(dto: CreateUserDto) {
-    const user = await this.findByCond({ email: dto.email });
+    const user = await this.findBy({ email: dto.email });
 
     if (user) {
       throw new ForbiddenException(lang.ru.userWithSuchEmailExists);
@@ -32,7 +32,7 @@ export class UserService {
     return this.repository.find();
   }
 
-  async findById(id: number) {
+  async byId(id: number) {
     const user = await this.repository.findOneBy({ id });
 
     if (!user) {
@@ -42,8 +42,9 @@ export class UserService {
     return user;
   }
 
-  findByCond(cond: Pick<CreateUserDto, 'email' | 'password'>) {
-    console.log(cond, 'findByCond');
+  findBy(cond: Pick<CreateUserDto, 'email' | 'password'>) {
+    console.log(cond, 'findBy');
+
     return this.repository.findOneBy(cond);
   }
 

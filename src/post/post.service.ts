@@ -12,14 +12,38 @@ export class PostService {
     @InjectRepository(PostEntity) private repository: Repository<PostEntity>,
   ) {}
 
-  create(dto: CreatePostDto) {
-    return this.repository.save(dto);
+  create(dto: CreatePostDto, userId: number) {
+    const firstParagraph =
+      dto.text.find((item) => item.type === 'paragraph')?.data.text || '';
+
+    return this.repository.save({
+      title: dto.title,
+      text: dto.text,
+      description: firstParagraph,
+      user: { id: userId },
+    });
+  }
+
+  async update(id: number, dto: UpdatePostDto) {
+    await this.byId(id);
+
+    const firstParagraph =
+      dto.text.find((item) => item.type === 'paragraph')?.data.text || '';
+
+    return this.repository.update(id, {
+      title: dto.title,
+      text: dto.text,
+      description: firstParagraph,
+    });
   }
 
   findAll() {
     return this.repository.find({
       order: {
         createdAt: 'DESC',
+      },
+      relations: {
+        user: true,
       },
     });
   }
@@ -59,28 +83,33 @@ export class PostService {
     return { items, totalCount };
   }
 
-  async findOne(id: number, isInc: boolean = true) {
-    const post = await this.repository.findOneBy({ id });
+  async byId(id: number, query?: { comments: number }) {
+    console.log(query, '777');
+    const qb = this.repository.createQueryBuilder('post');
+    qb.where('post.id = :id', { id: id });
+    qb.leftJoinAndSelect('post.user', 'user');
+
+    if (query?.comments) {
+      qb.leftJoinAndSelect('post.comments', 'comment');
+      qb.leftJoinAndSelect('comment.user', 'commmentUser');
+    }
+
+    const post = await qb.getOne();
+    console.log(post, qb.getSql());
 
     if (!post) {
       throw new NotFoundException();
     }
 
-    if (isInc) {
+    if (query?.comments) {
       await this.repository.increment({ id }, 'views', 1);
     }
 
     return post;
   }
 
-  async update(id: number, dto: UpdatePostDto) {
-    await this.findOne(id, false);
-
-    return this.repository.update(id, dto);
-  }
-
   async remove(id: number) {
-    await this.findOne(id, false);
+    await this.byId(id);
 
     return this.repository.delete(id);
   }

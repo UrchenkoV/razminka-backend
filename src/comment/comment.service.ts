@@ -12,19 +12,24 @@ export class CommentService {
     private repository: Repository<CommentEntity>,
   ) {}
 
-  create(dto: CreateCommentDto) {
+  create(dto: CreateCommentDto, userId: number) {
     return this.repository.save({
       text: dto.text,
       post: { id: dto.postId },
-      user: { id: 1 },
+      user: { id: userId },
     });
   }
 
   findAll() {
-    return this.repository.find();
+    return this.repository.find({
+      order: {
+        createdAt: 'DESC',
+      },
+      relations: ['user', 'post'],
+    });
   }
 
-  async findOne(id: number) {
+  async byId(id: number) {
     const data = await this.repository.findOneBy({ id });
 
     if (!data) throw new NotFoundException();
@@ -33,13 +38,13 @@ export class CommentService {
   }
 
   async update(id: number, dto: UpdateCommentDto) {
-    await this.findOne(id);
+    await this.byId(id);
 
     return this.repository.update(id, { text: dto.text });
   }
 
   async remove(id: number) {
-    await this.findOne(id);
+    await this.byId(id);
     return this.repository.delete(id);
   }
 }
