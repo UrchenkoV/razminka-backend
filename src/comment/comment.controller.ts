@@ -34,9 +34,14 @@ export class CommentController {
     return this.commentService.byId(+id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateCommentDto) {
-    return this.commentService.update(+id, dto);
+  update(
+    @Param('id') id: string,
+    @Body() dto: UpdateCommentDto,
+    @Request() req,
+  ) {
+    return this.commentService.update(+id, dto, req.user.id);
   }
 
   @Delete(':id')

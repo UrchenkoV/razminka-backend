@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -24,8 +28,15 @@ export class PostService {
     });
   }
 
-  async update(id: number, dto: UpdatePostDto) {
-    await this.byId(id);
+  async update(id: number, dto: UpdatePostDto, userId: number) {
+    const qb = this.repository.createQueryBuilder('p');
+    qb.where('p.id = :id', { id, userId });
+    qb.andWhere('p.userId = :userId', { userId });
+    const post = await qb.getOne();
+
+    if (!post) {
+      throw new ForbiddenException();
+    }
 
     const firstParagraph =
       dto.text.find((item) => item.type === 'paragraph')?.data.text || '';
@@ -37,15 +48,14 @@ export class PostService {
     });
   }
 
-  findAll() {
-    return this.repository.find({
-      order: {
-        createdAt: 'DESC',
-      },
-      relations: {
-        user: true,
-      },
-    });
+  async findAll() {
+    const qb = this.repository.createQueryBuilder('p');
+    qb.orderBy('p.createdAt', 'DESC');
+    qb.leftJoin('p.user', 'user');
+    qb.addSelect(['user.id', 'user.fullName', 'user.avatarUrl']);
+    qb.loadRelationCountAndMap('p.countComments', 'p.comments', 'c');
+
+    return await qb.getMany();
   }
 
   async popular() {
@@ -84,18 +94,20 @@ export class PostService {
   }
 
   async byId(id: number, query?: { comments: number }) {
-    console.log(query, '777');
     const qb = this.repository.createQueryBuilder('post');
     qb.where('post.id = :id', { id: id });
-    qb.leftJoinAndSelect('post.user', 'user');
+    qb.leftJoin('post.user', 'user');
+    qb.addSelect(['user.id', 'user.fullName', 'user.avatarUrl']);
 
     if (query?.comments) {
-      qb.leftJoinAndSelect('post.comments', 'comment');
-      qb.leftJoinAndSelect('comment.user', 'commmentUser');
+      qb.leftJoinAndSelect('post.comments', 'c');
+      qb.leftJoin('c.user', 'cUser');
+      qb.addSelect(['cUser.id', 'cUser.fullName', 'cUser.avatarUrl']);
+      qb.orderBy('c.createdAt');
+      qb.loadRelationCountAndMap('post.countComments', 'post.comments');
     }
 
     const post = await qb.getOne();
-    console.log(post, qb.getSql());
 
     if (!post) {
       throw new NotFoundException();
@@ -103,6 +115,17 @@ export class PostService {
 
     if (query?.comments) {
       await this.repository.increment({ id }, 'views', 1);
+    }
+
+    return post;
+  }
+
+  async findOneBy(req: PostEntity) {
+    const post = await this.repository.findOne({ where: { ...req } });
+    console.log(post, 'find one by');
+
+    if (!post) {
+      throw new ForbiddenException();
     }
 
     return post;

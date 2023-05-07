@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -37,8 +41,16 @@ export class CommentService {
     return data;
   }
 
-  async update(id: number, dto: UpdateCommentDto) {
-    await this.byId(id);
+  async update(id: number, dto: UpdateCommentDto, userId: number) {
+    const qb = this.repository.createQueryBuilder('c');
+    qb.where('c.id = :id', { id });
+    qb.andWhere('c.userId = :userId', { userId });
+    const comment = await qb.getOne();
+
+    console.log(comment, 'update');
+    if (!comment) {
+      throw new ForbiddenException();
+    }
 
     return this.repository.update(id, { text: dto.text });
   }

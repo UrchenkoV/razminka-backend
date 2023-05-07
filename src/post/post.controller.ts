@@ -8,6 +8,7 @@ import {
   Delete,
   Query,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -29,8 +30,8 @@ export class PostController {
 
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdatePostDto) {
-    return this.postsService.update(+id, dto);
+  update(@Param('id') id: string, @Body() dto: UpdatePostDto, @Request() req) {
+    return this.postsService.update(+id, dto, req.user.id);
   }
 
   @UseGuards(JwtAuthGuard)
