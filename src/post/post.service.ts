@@ -81,16 +81,17 @@ export class PostService {
     }
 
     if (dto.text) {
-      qb.where(`p.text ILIKE :text`, { text: `%${dto.text}%` });
+      //qb.where(`p.text ILIKE :text`, { text: `%${dto.text}%` });
     }
 
     if (dto.title) {
       qb.orWhere(`p.title ILIKE :title`, { title: `%${dto.title}%` });
     }
+    qb.select(['p.id', 'p.title']);
 
-    const [items, totalCount] = await qb.getManyAndCount();
+    const [posts, totalCount] = await qb.getManyAndCount();
 
-    return { items, totalCount };
+    return { posts, totalCount };
   }
 
   async byId(id: number, query?: { comments: number }) {
